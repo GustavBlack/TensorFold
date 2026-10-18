@@ -38,6 +38,7 @@ const lfm2_vision_tests = @import("lfm2_vision_tests.zig");
 const radio_tests = @import("radio_tests.zig");
 const glm_lanes_tests = @import("glm_lanes_tests.zig");
 const glm_synth = @import("glm_synth.zig");
+const aot_fallback_tests = @import("aot_fallback_tests.zig");
 
 const usage =
     \\usage: tf-cuda-test <command>
@@ -95,6 +96,7 @@ const usage =
     \\  glm-lanes-concurrent <ckpt> <dc.json> <rank> <world> <idfile>  concurrent streams on one lanes.Engine, each against its solo run
     \\  glm-shared-check <ckpt> <dc.json> <rank> <world> <idfile>  shared verify windows against lone twins, logits and states byte for byte
     \\  glm-synth <dir>          a synthetic GLM-5.3-Flash checkpoint (2 layers, 16 experts) and its dc.json for the lane checks
+    \\  aot-fallback <dir>        a launch's 1 from the runtime-parameter variant: the folded variant's bits (#1003)
     \\
 ;
 
@@ -192,6 +194,7 @@ fn run(gpu: check.Gpu, cmd: []const u8, rest: []const [:0]const u8) !void {
     if (std.mem.eql(u8, cmd, "glm-lanes-cover")) return glm_lanes_tests.coverCheck(gpu, try arg(rest, 0), try arg(rest, 1), try std.fmt.parseInt(c_int, try arg(rest, 2), 10), try std.fmt.parseInt(c_int, try arg(rest, 3), 10), try arg(rest, 4));
     if (std.mem.eql(u8, cmd, "glm-shared-check")) return glm_lanes_tests.sharedCheck(gpu, try arg(rest, 0), try arg(rest, 1), try std.fmt.parseInt(c_int, try arg(rest, 2), 10), try std.fmt.parseInt(c_int, try arg(rest, 3), 10), try arg(rest, 4));
     if (std.mem.eql(u8, cmd, "glm-synth")) return glm_synth.run(gpu, try arg(rest, 0));
+    if (std.mem.eql(u8, cmd, "aot-fallback")) return aot_fallback_tests.run(gpu, try arg(rest, 0));
     if (std.mem.eql(u8, cmd, "glm-lanes-concurrent")) return glm_lanes_tests.concurrentCheck(gpu, try arg(rest, 0), try arg(rest, 1), try std.fmt.parseInt(c_int, try arg(rest, 2), 10), try std.fmt.parseInt(c_int, try arg(rest, 3), 10), try arg(rest, 4));
     std.debug.print("{s}", .{usage});
     return error.UnknownCommand;
